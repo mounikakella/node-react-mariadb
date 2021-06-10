@@ -29,9 +29,24 @@ const Profile = (props) => {
         alignItems="center"
         justify="center"
       >
-        <p>Name: {user.name}</p>
-        <p>Email: {user.email}</p>
-        <p>Role: {user.role}</p>
+        <div
+          style={{
+            minWidth: "300px",
+            border: "1px solid black",
+            padding: "15px",
+          }}
+        >
+          <div style={{ alignItems: "left", width: "100px", float: "left" }}>
+            <p style={{ textAlign: "right" }}>Name:</p>
+            <p style={{ textAlign: "right" }}>Email:</p>
+            <p style={{ textAlign: "right" }}>Role: </p>
+          </div>
+          <div style={{ alignItems: "right", width: "200px", float: "left" }}>
+            <p style={{ textAlign: "right" }}>{user.name}</p>
+            <p style={{ textAlign: "right" }}>{user.email}</p>
+            <p style={{ textAlign: "right" }}>{user.role}</p>
+          </div>
+        </div>
       </Grid>
       <Grid
         item

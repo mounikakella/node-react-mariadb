@@ -1,70 +1,60 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Grid } from "@material-ui/core";
-import { DataGrid } from "@material-ui/data-grid";
+import { Container, Typography, Grid, Button } from "@material-ui/core";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import { withStyles } from "@material-ui/core/styles";
 import config from "../config";
 
-const Users = () => {
-  const [user, setUser] = useState({});
-  const [rows, setRows] = useState([
-    {
-      id: 4,
-      name: "Fred",
-      email: "Fred@123.com",
-      password: "68651",
-      role: "ADMIN",
+const Users = (props) => {
+  const [rows, setRows] = useState([]);
+  const [role, setRole] = useState("");
+
+  const StyledTableCell = withStyles((_theme) => ({
+    head: {
+      backgroundColor: "#a7c942",
+      color: "white",
+      border: "1px solid #a7c942",
     },
-    {
-      id: 1,
-      name: "James",
-      email: "James@123.com",
-      password: "1!23#4",
-      role: "EMPLOYEE",
+    body: {
+      fontSize: 14,
     },
-    {
-      id: 3,
-      name: "John",
-      email: "John@123.com",
-      password: "98!891",
-      role: "ADMIN",
+  }))(TableCell);
+
+  const StyledTableRow = withStyles((_theme) => ({
+    root: {
+      "&:nth-of-type(even)": {
+        backgroundColor: "#eaf2d3",
+      },
     },
-    {
-      id: 2,
-      name: "Peter",
-      email: "Peter@123.com",
-      password: "8^23!3",
-      role: "EMPLOYEE",
-    },
-  ]);
-  const [columns, setColumns] = useState([
-    { field: "name", headerName: "name" },
-    { field: "email", headerName: "Email" },
-    { field: "role", headerName: "Role" },
-  ]);
+  }))(TableRow);
 
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
       const foundUser = JSON.parse(loggedInUser);
-      setUser(foundUser);
-    }
-    if (user.role === "Admin") {
-      async function fetchData() {
-        const response = await fetch(`${config.BACKEND_BASE_URL}/users`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setColumns([
-          { field: "name", headerName: "name" },
-          { field: "email", headerName: "Email" },
-          { field: "role", headerName: "Role" },
-        ]);
-        setRows(response.data);
+      if (foundUser.role === "ADMIN") {
+        fetchData();
+        setRole(foundUser.role);
+      } else {
+        setRows([]);
       }
-      fetchData();
     }
-  }, [user.role]);
+    async function fetchData() {
+      const response = await fetch(`${config.BACKEND_BASE_URL}/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      console.log("data", data);
+      setRows(data);
+    }
+  }, []);
 
   return (
     <Container>
@@ -74,7 +64,7 @@ const Users = () => {
         variant="h2"
         align="center"
       >
-        Profile
+        All Users
       </Typography>
       <Grid
         item
@@ -84,7 +74,45 @@ const Users = () => {
         alignItems="center"
         justify="center"
       >
-        <DataGrid rows={rows} columns={columns} />
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <StyledTableRow>
+                <StyledTableCell align="left">Name</StyledTableCell>
+                <StyledTableCell align="left">Email</StyledTableCell>
+                <StyledTableCell align="left">Role</StyledTableCell>
+              </StyledTableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row) => (
+                <StyledTableRow key={row.name}>
+                  <StyledTableCell align="left">{row.name}</StyledTableCell>
+                  <StyledTableCell align="left">{row.email}</StyledTableCell>
+                  <StyledTableCell align="left">{row.role}</StyledTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>
+      <Grid
+        item
+        container
+        spacing={0}
+        direction="row"
+        alignItems="center"
+        justify="center"
+      >
+        <p>{role !== "ADMIN" ? "Not an Admin" : ""}</p>
+        <Button onClick={() => props.history.push("/profile")}>profile</Button>
+        <Button
+          onClick={() => {
+            localStorage.removeItem("user");
+            props.history.push("/");
+          }}
+        >
+          Logout
+        </Button>
       </Grid>
     </Container>
   );

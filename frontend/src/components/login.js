@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import config from "../config";
 
-const Login = () => {
+const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,13 +25,16 @@ const Login = () => {
         password,
       }),
     });
+    const body = await res.json();
     if (res.status === 403) {
       setError("Authentication error");
     } else if (res.status !== 200) {
       setError("Something is wrong");
     } else {
       console.log("redirect to profile");
-      localStorage.setItem(res.data[0]);
+      console.log(body);
+      props.history.push("/profile");
+      localStorage.setItem("user", JSON.stringify(body[0]));
     }
   }
 
